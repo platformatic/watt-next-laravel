@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schemas.platformatic.dev/@platformatic/php/0.3.1.json",
+  "module": "@platformatic/php",
+  "php": {
+    "docroot": "public",
+    "rewriter": [
+      {
+        "conditions": [
+          { "type": "not_exists" }
+        ],
+        "rewriters": [
+          {
+            "type": "href",
+            "args": ["/(.*)", "/index.php?/$1"]
+          }
+        ]
+      }
+    ]
+  },
+  "watch": true
+}
