@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schemas.platformatic.dev/@platformatic/composer/2.64.0.json",
+  "composer": {
+    "services": [
+      {
+        "id": "laravel",
+        "proxy": {
+          "prefix": "/laravel"
+        }
+      },
+      {
+        "id": "my-app",
+        "proxy": {
+          "prefix": "/"
+        }
+      }
+    ],
+    "refreshTimeout": 1000
+  },
+  "watch": true
+}

@@ -1,0 +1,23 @@
+{
+  "name": "watt-next-laravel",
+  "workspaces": [
+    "web/*"
+  ],
+  "scripts": {
+    "start": "wattpm start",
+    "dev": "wattpm dev",
+    "build": "wattpm build"
+  },
+  "devDependencies": {
+    "borp": "^0.20.0",
+    "fastify": "^5.0.0"
+  },
+  "dependencies": {
+    "@platformatic/runtime": "^2.64.0",
+    "platformatic": "^2.64.0",
+    "wattpm": "^2.64.0"
+  },
+  "engines": {
+    "node": "^18.8.0 || >=20.6.0"
+  }
+}
