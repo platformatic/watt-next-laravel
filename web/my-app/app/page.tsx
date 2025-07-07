@@ -3,21 +3,47 @@
 import { headers } from 'next/headers';
 import Link from 'next/link';
 import Image from 'next/image';
-import RssParser from 'rss-parser';
 
-const parser = new RssParser();
+// Laravel API URL
+const LARAVEL_API_URL = 'http://localhost:3042/laravel/api';
 
-// Replace with your Symfony site URL
-// const SYMFONY_URL = 'http://symfony.plt.local';
-const SYMFONY_URL = 'http://localhost:3042/symfony';
+// Define Article type
+interface Article {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string;
+  author: string | null;
+  published: boolean;
+  published_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface PaginatedResponse {
+  data: Article[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+}
 
 // Server component to fetch posts
-async function getPosts() {
+async function getPosts(): Promise<Article[]> {
   try {
-    const feed = await parser.parseURL(`${SYMFONY_URL}/en/blog/rss.xml`);
-    return feed.items
+    const response = await fetch(`${LARAVEL_API_URL}/articles`, {
+      next: { revalidate: 0 } // Disable caching for now
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const result: PaginatedResponse = await response.json();
+    return result.data;
   } catch (error) {
-    console.error('Error fetching Symfony posts:', error);
+    console.error('Error fetching Laravel posts:', error);
     throw error;
   }
 }
@@ -36,15 +62,8 @@ function formatDate(dateString) {
 }
 
 // Post Card Component
-function PostCard({ post }) {
-  const author = post.author;
-  const categories = post.categories.slice(0, 3) || [];
-
-  // return (
-  //   <div>
-  //     {JSON.stringify(post)}
-  //   </div>
-  // );
+function PostCard({ article }: { article: Article }) {
+  const author = article.author;
 
   return (
     <article className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
@@ -52,41 +71,29 @@ function PostCard({ post }) {
         {/* Title */}
         <h2 className="text-xl font-semibold text-gray-900 mb-3">
           <Link
-            href={post.link}
+            href={`/article/${article.id}`}
             className="hover:text-blue-600 transition-colors duration-200 line-clamp-2"
           >
-            <span>{post.title}</span>
+            <span>{article.title}</span>
           </Link>
         </h2>
 
         {/* Excerpt */}
-        <p className="text-gray-600 mb-4 line-clamp-3">
-          {stripHtml(post.description || '')}
-        </p>
+        {article.excerpt && (
+          <p className="text-gray-600 mb-4 line-clamp-3">
+            {article.excerpt}
+          </p>
+        )}
 
         {/* Meta information */}
         <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-          <time dateTime={post.pubDate}>{formatDate(post.pubDate)}</time>
+          <time dateTime={article.published_at}>{formatDate(article.published_at)}</time>
           {author && <span>By {author}</span>}
         </div>
 
-        {/* Categories */}
-        {categories.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {categories.map((category) => (
-              <span
-                key={category}
-                className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
-              >
-                {category}
-              </span>
-            ))}
-          </div>
-        )}
-
         {/* Read More Link */}
         <Link
-          href={post.link}
+          href={`/article/${article.id}`}
           className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
         >
           Read More
@@ -128,10 +135,15 @@ export const revalidate = 0
 export default async function BlogPage() {
   'use server'
 
-  let posts = [];
+  let articles: Article[] = [];
   let error = null;
 
-  posts = await getPosts();
+  try {
+    articles = await getPosts();
+  } catch (err) {
+    error = err;
+    console.error('Failed to fetch articles:', err);
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -143,7 +155,17 @@ export default async function BlogPage() {
           </p>
         </header>
 
-        {posts.length === 0 ? (
+        {error ? (
+          <div className="text-center py-12">
+            <div className="text-red-500">
+              <svg className="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-lg">Error loading articles</p>
+              <p className="text-sm mt-2">Please try again later</p>
+            </div>
+          </div>
+        ) : articles.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-500">
               <svg className="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,8 +177,8 @@ export default async function BlogPage() {
           </div>
         ) : (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post) => (
-              <PostCard key={post.guid} post={post} />
+            {articles.map((article) => (
+              <PostCard key={article.id} article={article} />
             ))}
           </div>
         )}

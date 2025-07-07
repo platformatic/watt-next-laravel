@@ -3,9 +3,9 @@
   "composer": {
     "services": [
       {
-        "id": "symfony",
+        "id": "laravel",
         "proxy": {
-          "prefix": "/symfony"
+          "prefix": "/laravel"
         }
       },
       {
