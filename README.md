@@ -36,6 +36,14 @@ Install dependencies for all workspaces:
 npm install
 ```
 
+The Laravel up should be configured with these commands
+
+```bash
+cd web/laraverl
+composer install
+composer run-script post-create-project-cmd
+```
+
 ## Development
 
 Start the development environment:
