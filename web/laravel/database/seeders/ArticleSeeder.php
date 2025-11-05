@@ -13,6 +13,7 @@ class ArticleSeeder extends Seeder
      */
     public function run(): void
     {
+        Article::truncate();
         $articles = [
             [
                 'title' => 'Getting Started with Laravel',

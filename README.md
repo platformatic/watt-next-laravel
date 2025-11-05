@@ -39,9 +39,9 @@ npm install
 The Laravel up should be configured with these commands
 
 ```bash
-cd web/laraverl
+cd web/laravel
 composer install
-composer run-script post-create-project-cmd
+composer run-script setup
 ```
 
 ## Development

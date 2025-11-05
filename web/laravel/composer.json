@@ -58,6 +58,15 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
+        ],
+        "setup": [
+            "composer run-script post-create-project-cmd",
+            "composer run-script post-root-package-install",
+            "composer run-script seed"
+        ],
+        "seed": [
+            "@php artisan db:seed",
+            "@php artisan db:seed --class=ArticleSeeder"
         ]
     },
     "extra": {
