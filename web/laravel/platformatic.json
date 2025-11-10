@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schemas.platformatic.dev/@platformatic/php/0.3.1.json",
+  "$schema": "https://schemas.platformatic.dev/@platformatic/php/0.8.3.json",
   "module": "@platformatic/php",
   "php": {
     "docroot": "public",
